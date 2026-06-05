@@ -84,6 +84,28 @@ export const calcularPuntos = (quiniela, resultadosReales) => {
 
     if (!real || !prediccion) return
 
+    if (
+      real.local === "" ||
+      real.visitante === "" ||
+      real.local === null ||
+      real.visitante === null ||
+      real.local === undefined ||
+      real.visitante === undefined
+    ) {
+      return
+    }
+
+    if (
+      prediccion.local === "" ||
+      prediccion.visitante === "" ||
+      prediccion.local === null ||
+      prediccion.visitante === null ||
+      prediccion.local === undefined ||
+      prediccion.visitante === undefined
+    ) {
+      return
+    }
+
     const realLocal = Number(real.local)
     const realVisitante = Number(real.visitante)
     const predLocal = Number(prediccion.local)
@@ -106,9 +128,14 @@ export const calcularPuntos = (quiniela, resultadosReales) => {
     if (realLocal === predLocal && realVisitante === predVisitante) {
       puntos += 5
       aciertosExactos += 1
+      return
     }
 
-    if (ganadorReal === ganadorPred) puntos += 3
+    if (ganadorReal === ganadorPred) {
+      puntos += 3
+      return
+    }
+
     if (realLocal === predLocal) puntos += 1
     if (realVisitante === predVisitante) puntos += 1
   })
@@ -116,12 +143,25 @@ export const calcularPuntos = (quiniela, resultadosReales) => {
   const finalReal = resultadosReales.final || {}
   const finalUser = quiniela.final || {}
 
-  const finalistasReales = [finalReal.finalista1, finalReal.finalista2]
+  const finalistasReales = [
+    finalReal.finalista1,
+    finalReal.finalista2,
+  ].filter(Boolean)
 
-  if (finalistasReales.includes(finalUser.finalista1)) puntos += 10
-  if (finalistasReales.includes(finalUser.finalista2)) puntos += 10
+  if (finalistasReales.length > 0) {
+    if (finalUser.finalista1 && finalistasReales.includes(finalUser.finalista1)) {
+      puntos += 10
+    }
 
-  const campeonAcertado = finalUser.campeon === finalReal.campeon
+    if (finalUser.finalista2 && finalistasReales.includes(finalUser.finalista2)) {
+      puntos += 10
+    }
+  }
+
+  const campeonAcertado =
+    Boolean(finalReal.campeon) &&
+    Boolean(finalUser.campeon) &&
+    finalUser.campeon === finalReal.campeon
 
   if (campeonAcertado) puntos += 30
 
